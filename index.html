@@ -1,0 +1,684 @@
+  <!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+  <link href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" rel="stylesheet"/>
+    <title>NeuroTrip - Descubra o Sul do Maranhão</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      
+      :root {
+        --primary: #0088cc;
+        --secondary: #00cc88;
+        --accent: #ff6600;
+        --dark: #333333;
+        --light: #f5f5f5;
+      }
+      
+      body {
+        background-color: var(--light);
+        color: var(--dark);
+      }
+      
+      header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .logo-text {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+      
+      .logo-icon {
+        font-size: 2.5rem;
+      }
+      
+      nav ul {
+        display: flex;
+        list-style: none;
+        gap: 2rem;
+      }
+      
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+      }
+      
+      nav a:hover {
+        background-color: rgba(255,255,255,0.2);
+      }
+      
+      .hero {
+        background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMl22b6iI3FV7hawB5dCe1WCyFIXEfhG-KtA&s);
+        background-size: cover;
+        background-position: center;
+        color: white;
+        text-align: center;
+        padding: 8rem 2rem;
+        position: relative;
+      }
+      
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+      }
+      
+      .hero-content {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      
+      .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+      
+      .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .cta-button {
+        background-color: var(--accent);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .cta-button:hover {
+        background-color: #ff7722;
+        transform: translateY(-2px);
+      }
+      
+      .features {
+        padding: 4rem 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      .feature-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      }
+      
+      .feature-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+      
+      .feature-card h3 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+      
+      .map-section {
+        padding: 4rem 2rem;
+        background-color: #f0f0f0;
+        text-align: center;
+      }
+      
+      .map-section h2 {
+        margin-bottom: 2rem;
+        font-size: 2.2rem;
+      }
+      
+      .map-container {
+        position: relative;
+        max-width: 1000px;
+        margin: 0 auto;
+        height: 500px;
+        background-color: #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+      
+      .ai-section {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f5f5f5, #e5e5e5);
+      }
+      
+      .ai-section h2 {
+        margin-bottom: 2rem;
+        font-size: 2.2rem;
+      }
+      
+      .ai-demo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+      }
+      
+      .ai-chat {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 350px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .message {
+        padding: 0.8rem;
+        border-radius: 8px;
+        max-width: 80%;
+      }
+      
+      .user-message {
+        background-color: var(--primary);
+        color: white;
+        align-self: flex-end;
+      }
+      
+      .bot-message {
+        background-color: #e0e0e0;
+        align-self: flex-start;
+      }
+      
+      .chat-input {
+        display: flex;
+        gap: 0.5rem;
+      }
+      
+      .chat-input input {
+        flex-grow: 1;
+        padding: 0.8rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      
+      .chat-input button {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 0.8rem;
+        cursor: pointer;
+      }
+      
+      .ai-results {
+        background-color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 350px;
+        height: 400px;
+      }
+      
+      .destinations {
+        padding: 4rem 2rem;
+        text-align: center;
+      }
+      
+      .destinations h2 {
+        margin-bottom: 2rem;
+        font-size: 2.2rem;
+      }
+      
+      .destination-carousel {
+        display: flex;
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        overflow-x: auto;
+        padding: 1rem 0;
+      }
+      
+      .destination-card {
+        min-width: 300px;
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .destination-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      }
+      
+      .destination-image {
+        height: 200px;
+        background-size: cover;
+        background-position: center;
+      }
+      
+      .destination-info {
+        padding: 1.5rem;
+      }
+      
+      .destination-info h3 {
+        margin-bottom: 0.5rem;
+      }
+      
+      .destination-info p {
+        color: #666;
+        margin-bottom: 1rem;
+      }
+      
+      .destination-rating {
+        color: var(--accent);
+      }
+      
+      footer {
+        background-color: var(--dark);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+      
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+        gap: 2rem;
+      }
+      
+      .footer-section {
+        flex: 1;
+        min-width: 200px;
+      }
+      
+      .footer-section h3 {
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+      }
+      
+      .footer-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 50%;
+        height: 2px;
+        background-color: var(--accent);
+      }
+      
+      .footer-links {
+        list-style: none;
+      }
+      
+      .footer-links li {
+        margin-bottom: 0.5rem;
+      }
+      
+      .footer-links a {
+        color: #ccc;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+      
+      .footer-links a:hover {
+        color: white;
+        padding-left: 5px;
+      }
+      
+      .copyright {
+        margin-top: 2rem;
+        color: #999;
+        font-size: 0.9rem;
+      }
+      
+      .compass-icon {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        border: 3px solid white;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255,255,255,0.1);
+      }
+      
+      .compass-needle {
+        position: absolute;
+        width: 4px;
+        height: 30px;
+        background: linear-gradient(to top, var(--accent) 50%, white 50%);
+        transform-origin: center;
+        animation: rotate 8s linear infinite;
+      }
+      
+      @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      .compass-center {
+        width: 8px;
+        height: 8px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+      }
+      
+      .location-pin {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--accent);
+        font-size: 3rem;
+      }
+      
+      .pin-pulse {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        position: relative;
+      }
+      
+      .pin-pulse::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: var(--accent);
+        opacity: 0.6;
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 0.6; }
+        70% { transform: scale(2.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 0; }
+      }
+      
+      @media (max-width: 768px) {
+        nav ul {
+          gap: 1rem;
+        }
+        
+        .hero h1 {
+          font-size: 2rem;
+        }
+        
+        .feature-card {
+          padding: 1.5rem;
+        }
+        
+        .ai-demo {
+          flex-direction: column;
+        }
+        
+        .footer-content {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <di!v class="logo">
+        <div class="compass-icon">
+          <div class="compass-needle"></div>
+          <div class="compass-center"></div>
+        </div>
+        <span class="logo-text">NeuroTrip</span>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#">Início</a></li>
+          <li><a href="#">Destinos</a></li>
+          <li><a href="#">IA Assistente</a></li>
+          <li><a href="#">Roteiros</a></li>
+          <li><a href="#">Contato</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Descubra o Sul do Maranhão</h1>
+        <p>Roteiros personalizados, recomendações inteligentes e uma experiência única de viagem. NeuroTrip conecta você às maravilhas escondidas do Sul do Maranhão.</p>
+        <button class="cta-button">Começar Minha Aventura</button>
+      </div>
+    </section>
+    
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Inteligência Artificial</h3>
+        <p>Nossa IA analisa seus interesses e preferências para criar roteiros personalizados e únicos, garantindo uma experiência sob medida.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗺️</div>
+        <h3>Mapas Interativos</h3>
+        <p>Explore a região com facilidade através de nossos mapas detalhados e interativos, com informações atualizadas de cada local.</p>
+      </div>
+      <di	v class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Assistente Virtual</h3>
+        <p>Tire dúvidas e receba sugestões em tempo real com nosso chatbot inteligente, disponível 24 horas para ajudar no seu planejamento.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Sempre Atualizado</h3>
+        <p>Informações sobre clima, eventos locais e dicas de segurança atualizadas constantemente para garantir uma viagem tranquila.</p>
+      </div>
+    </section>
+    
+    <section class="map-section">
+      <h2>Explore o Sul do Maranhão</h2>
+      <div class="map-container">
+
+  <div id="osm-map"></div>
+  <!--<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Maranhao_Municip_Balsas.svg/800px-Maranhao_Municip_Balsas.svg.png" alt="Mapa interativo do Sul do Maranhão" width='382' />-->
+      </div>
+    </section>
+    
+    <section class="ai-section">
+      <h2>Acesso roteiros feitos por humanos e/ou IA</h2>
+      <div class="ai-demo">
+        <div class="ai-chat">
+          <div class="chat-messages">
+            <div class="message bot-message">Olá! Sou o assistente virtual da NeuroTrip. Como posso ajudar na sua viagem ao Sul do Maranhão?</div>
+            <div class="message user-message">Gostaria de conhecer lugares com cachoeiras!</div>
+            <div class="message bot-message">Ótima escolha! No Sul do Maranhão temos várias opções. Você prefere cachoeiras de fácil acesso ou está disposto a fazer trilhas?</div>
+            <div class="message user-message">Prefiro fácil acesso, estou viajando com crianças.</div>
+            <div class="message bot-message">Entendi! Nesse caso, recomendo a Cachoeira do Prata em Carolina e a Cachoeira do Itapecuru em Imperatriz. Ambas têm boa infraestrutura e são seguras para crianças. Deseja ver fotos e mais informações?</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" placeholder="Digite sua mensagem...">
+            <button>Enviar</button>
+          </div>
+        </div>
+        <div class="ai-results">
+          <h3>Roteiro Personalizado</h3>
+          <div style="padding: 1rem; margin-top: 1rem; background-color: #f5f5f5; border-radius: 8px;">
+            <h4>Dia 1: Carolina</h4>
+            <p>- Manhã: Café da manhã no Hotel Chapada</p>
+            <p>- 10h: Visita à Cachoeira do Prata</p>
+            <p>- 13h: Almoço no Restaurante Regional</p>
+            <p>- 15h: Passeio pelo Centro Histórico</p>
+            <p>- Noite: Jantar com música local</p>
+            
+            <h4 style="margin-top: 1rem;">Dia 2: Imperatriz</h4>
+            <p>- Manhã: Traslado para Imperatriz</p>
+            <p>- 11h: Cachoeira do Itapecuru</p>
+            <p>- 14h: Almoço típico maranhense</p>
+            <p>- Tarde: Atividades para crianças</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="destinations">
+      <h2>Destinos Populares</h2>
+      <div class="destination-carousel">
+        <div class="destination-card">
+          <div class="destination-image" style="background-image: url('https://lh5.googleusercontent.com/p/AF1QipNBi3tmhLGXxhRLNFxvghlJvUSDqBMa6uQ9vF5j=w270-h312-n-k-no')"></div>
+          <div class="destination-info">
+            <h3>Carolina</h3>
+            <p>Cidade famosa por suas belas cachoeiras e o impressionante Parque Nacional da Chapada das Mesas.</p>
+            <div class="destination-rating">★★★★★</div>
+          </div>
+        </div>
+        <div class="destination-card">
+          <div class="destination-image" style="background-image: url('https://lh3.googleusercontent.com/p/AF1QipMRrFkP60uLYlFE__l6lmcLLKNeMTuSGWzBmM3j=s294-w294-h220-k-no')"></div>
+          <div class="destination-info">
+            <h3>Imperatriz</h3>
+            <p>Segunda maior cidade do Maranhão, com rica cultura, gastronomia e pontos turísticos naturais.</p>
+            <div class="destination-rating">★★★★☆</div>
+          </div>
+        </div>
+        <div class="destination-card">
+          <div class="destination-image" style="background-image: url('data:image/jpeg;base64,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')"></div>
+          <div class="destination-info">
+            <h3>Balsas</h3>
+            <p>Conhecida pela beleza do Rio Balsas e pelo turismo rural, com fazendas e produções agrícolas.</p>
+            <div class="destination-rating">★★★★☆</div>
+          </div>
+        </div>
+        <div class="destination-card">
+          <div class="destination-image" style="background-image: url('https://www.viagensecaminhos.com/wp-content/uploads/2021/08/poco-azul-riachao.jpg')"></div>
+          <div class="destination-info">
+            <h3>Riachão</h3>
+            <p>Destino ideal para ecoturismo, com diversas cachoeiras, trilhas e o impressionante Poço Azul.</p>
+            <div class="destination-rating">★★★★★</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <footer>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>NeuroTrip</h3>
+          <p>Transformando o turismo no Sul do Maranhão com tecnologia e inovação.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Links Rápidos</h3>
+          <ul class="footer-links">
+            <li><a href="#">Sobre Nós</a></li>
+            <li><a href="#">Destinos</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contato</h3>
+          <ul class="footer-links">
+            <li>contato@neurotrip.com.br</li>
+            <li>(99) 3000-0000</li>
+            <li>Imperatriz, Maranhão</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Redes Sociais</h3>
+          <ul class="footer-links">
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">Twitter</a></li>
+            <li><a href="#">YouTube</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        © 2025 NeuroTrip. Todos os direitos reservados.
+      </div>
+    </footer>
+  </body>
+  <script>
+  // Where you want to render the map.
+  var element = document.getElementById('osm-map');
+
+  // Height has to be set. You can do this in CSS too.
+  element.style = 'height:500px;';
+
+  // Create Leaflet map on map element.
+  var map = L.map(element);
+
+  // Add OSM tile layer to the Leaflet map.
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  // Target's GPS coordinates.
+  var target = L.latLng('-7.53292', '-46.035');
+
+  // Set map's center to target with zoom 14.
+  map.setView(target, 9);
+
+  // Place a marker on the same location.
+  L.marker(target).addTo(map); 
+  </script>
+
+  </html>
